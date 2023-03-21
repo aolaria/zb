@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  zb_db:
+    image: postgres:${PSQL_VERSION}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${PSQL_USER}
+      - POSTGRES_PASSWORD=${PSQL_PASS}
+      - POSTGRES_DB=${PSQL_DB}
+
+  zb_web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - zb_db
+
+volumes:
+  postgres_data:
