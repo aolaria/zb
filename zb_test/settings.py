@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'account',
     'product'
 ]
@@ -87,8 +88,8 @@ DATABASES = {
         "NAME": os.getenv("PSQL_DB"),
         "USER": os.getenv("PSQL_USER"),
         "PASSWORD": os.getenv("PSQL_PASS"),
-        "HOST": os.getenv("PSQL_HOST", "localhost"),  # set in docker-compose.yml
-        "PORT": os.getenv("PSQL_PORT", "5432"),  # default postgres port
+        "HOST": os.getenv("PSQL_HOST", "localhost"),
+        "PORT": os.getenv("PSQL_PORT", "5432"),
     }
 }
 
@@ -139,6 +140,9 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
