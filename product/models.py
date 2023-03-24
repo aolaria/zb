@@ -45,4 +45,4 @@ class WatchRecord(models.Model):
     product = models.ForeignKey(Product, null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.product.name}-{self.count}"
+        return f"{self.product.name}-{self.product.brand.name}"

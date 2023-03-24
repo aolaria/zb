@@ -3,7 +3,7 @@ import secrets
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from product.models import Brand, Product
+from product.models import Brand, Product, WatchRecord
 from product.validators import (
     ProductValidator
 )
@@ -57,7 +57,19 @@ class ProductServices:
         return Product.objects.update_or_create(**data)
 
     @staticmethod
-    def retrieve(sku:str) -> Product:
+    def __create_product_record(prod: Product) -> None:
+        """
+        Creates a WatchRecord related to an specified product
+        """
+        record = WatchRecord.objects.filter(product__sku=prod.sku).first()
+        if not record:
+            record = WatchRecord.objects.create(count=1, product=prod)
+        else:
+            record.count += 1
+            record.save()
+
+    @staticmethod
+    def retrieve(request, sku:str) -> Product:
         """
         Retrieve a product instance
         :param sku: (str) product's SKU
@@ -65,8 +77,9 @@ class ProductServices:
         """
         try:
             prod = Product.objects.get(sku=sku)
-            # TODO: if it exists add a record 
-        except Product.DoesNotExist as error:
+            if request.user.is_anonymous:
+                ProductServices.__create_product_record(prod)
+        except ObjectDoesNotExist as error:
             raise error
         return prod
 

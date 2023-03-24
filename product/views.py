@@ -49,14 +49,14 @@ class ProductViewSet(viewsets.ViewSet):
     Product's View/Controller
     """
     @action(detail=True, methods=['GET'], permission_classes=[AllowAny])
-    def details(self, _, pk:str) -> Response:
+    def details(self, request, pk:str) -> Response:
         """
         Retriving Product Details
         """
         if not pk:
             return ErrorResponse("product SKU was not specified", status=status.HTTP_400_BAD_REQUEST)
         try:
-            prod = ProductServices.retrieve(sku=pk)
+            prod = ProductServices.retrieve(request, sku=pk)
         except ObjectDoesNotExist as error:
             return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
         return Response(ProductSerializer(prod).data, status=status.HTTP_200_OK)
