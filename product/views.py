@@ -1,6 +1,7 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -11,10 +12,7 @@ from product.services import (
     ProductServices,
     BrandServices
 )
-from product.serializers import (
-    ProductSerializer,
-    BrandSerializer
-)
+from product.serializers import ProductSerializer
 from product.validators import (
     ProductValidator,
     BrandValidator,
@@ -39,7 +37,10 @@ class BrandViewSet(viewsets.ViewSet):
         try:
             BrandValidator.validate(request.data)
             brand = BrandServices.create(request.data)
+        except IntegrityError:
+            return ErrorResponse("already existing brand", status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
+            logger.error(error)
             return ErrorResponse(str(error), status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_201_CREATED)
 
@@ -58,6 +59,7 @@ class ProductViewSet(viewsets.ViewSet):
         try:
             prod = ProductServices.retrieve(request, sku=pk)
         except ObjectDoesNotExist as error:
+            logger.error(error)
             return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
         return Response(ProductSerializer(prod).data, status=status.HTTP_200_OK)
 
@@ -71,7 +73,8 @@ class ProductViewSet(viewsets.ViewSet):
             ProductValidator.validate(request.data)
             prod, _ = ProductServices.create(request.data)
         except Exception as error:
-            return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
+            logger.error(error)
+            return ErrorResponse("something went wrong", status=status.HTTP_404_NOT_FOUND)
         return Response(ProductSerializer(prod).data, status=status.HTTP_201_CREATED)
 
     def update(self, request, pk=None) -> Response:
@@ -84,8 +87,11 @@ class ProductViewSet(viewsets.ViewSet):
         try:
             ProductUpdateValidator.validate(request.data)
             prod = ProductServices.update(sku=pk, data=request.data)
+        except ObjectDoesNotExist:
+            return ErrorResponse("not existing product", status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
-            return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
+            logger.error(error)
+            return ErrorResponse("soemthing went wrong", status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def destroy(self, _, pk=None) -> Response:
@@ -96,6 +102,9 @@ class ProductViewSet(viewsets.ViewSet):
         """
         try:
             ProductServices.destroy(sku=pk)
+        except ObjectDoesNotExist:
+            return ErrorResponse("not existing product", status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
-            return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
+            logger.error(error)
+            return ErrorResponse("something went wrong", status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)

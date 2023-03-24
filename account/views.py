@@ -18,20 +18,6 @@ from utils.CustomResponse import ErrorResponse
 logger = logging.getLogger(__name__)
 
 
-class AdminView(viewsets.ViewSet):
-    """
-    Admin Class-View
-    """
-    def create(self, request):
-        pass
-
-    def update(self, request, pk=None):
-        pass
-
-    def destroy(self, request, pk=None):
-        pass
-
-
 class LoginView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     """
     Login Class-View

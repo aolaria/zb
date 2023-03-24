@@ -19,6 +19,8 @@ class BrandServices:
         Creates Brand instance
         :param data: (dict) brand's details
         """
+        if not data:
+            raise ValueError("empty payload")
         return Brand.objects.create(name=data["name"].lower())
 
 
@@ -77,7 +79,7 @@ class ProductServices:
         """
         try:
             prod = Product.objects.get(sku=sku)
-            if request.user.is_anonymous:
+            if getattr(request.user, 'is_anonymous', False):
                 ProductServices.__create_product_record(prod)
         except ObjectDoesNotExist as error:
             raise error
