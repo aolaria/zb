@@ -16,6 +16,7 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 from rest_framework import routers
+from rest_framework import permissions
 
 from account.views import (
     LoginView
@@ -33,5 +34,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('', include(router.urls)),
     path('login/', LoginView.as_view({"post": "login"}), name='login'),
-    path('refresh/', LoginView.as_view({"put": "refresh"}), name='refresh')
+    path('refresh/', LoginView.as_view({"put": "refresh"}), name='refresh'),
 ]

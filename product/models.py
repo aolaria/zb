@@ -42,7 +42,7 @@ class WatchRecord(models.Model):
         2. product FK
     """
     count = models.IntegerField()
-    product = models.ForeignKey(Product, null=False, blank=False, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, null=False, blank=False, on_delete=models.CASCADE, primary_key=True)
 
     def __str__(self):
         return f"{self.product.name}-{self.product.brand.name}"

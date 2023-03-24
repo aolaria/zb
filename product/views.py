@@ -12,11 +12,11 @@ from product.services import (
     ProductServices,
     BrandServices
 )
-from product.serializers import ProductSerializer
+from product.serializers import ProductSerializer, ProductDetailSerializer
 from product.validators import (
     ProductValidator,
     BrandValidator,
-    ProductUpdateValidator
+    ProductUpdateValidator,
 )
 from utils.CustomResponse import ErrorResponse
 
@@ -61,7 +61,7 @@ class ProductViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist as error:
             logger.error(error)
             return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
-        return Response(ProductSerializer(prod).data, status=status.HTTP_200_OK)
+        return Response(ProductDetailSerializer(prod).data, status=status.HTTP_200_OK)
 
     def create(self, request) -> Response:
         """
