@@ -1,3 +1,5 @@
+import logging
+
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, status, mixins
 from rest_framework import permissions
@@ -11,6 +13,9 @@ from account.validators import (
     LoginValidator
 )
 from utils.CustomResponse import ErrorResponse
+
+
+logger = logging.getLogger(__name__)
 
 
 class LoginView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
@@ -30,6 +35,7 @@ class LoginView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             LoginValidator.validate(request.data)
             user = LoginServices.login(request.data)
         except (ValueError, ObjectDoesNotExist)  as error:
+            logging.error(error)
             return ErrorResponse(str(error), status=status.HTTP_400_BAD_REQUEST)
         return Response(user, status=status.HTTP_200_OK)
 
@@ -43,5 +49,6 @@ class LoginView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
         try:
             token = LoginServices.refresh(request.data)
         except Exception as error:
+            logging.error(error)
             return ErrorResponse(str(error), status=status.HTTP_400_BAD_REQUEST)
         return Response({"access": str(token.access_token)}, status=status.HTTP_200_OK)
