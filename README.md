@@ -28,10 +28,10 @@ This project was built as part of a test, it is a simple API made for storing pr
 
 <br/>
 
-### __End-points:__
-<br/>
 
-#### Login: (POST) requests JWT
+# __Login__
+---
+ (POST) requests JWT
 ---
 Url: __/login/__
 
@@ -53,7 +53,9 @@ response (200):
 
 <br/>
 
-#### Product: (POST) creates product instance
+# __Products__
+---
+(POST) creates product instance
 ---
 Url: __/products/__
 
@@ -88,8 +90,7 @@ response (201):
 
 <br/>
 
-
-#### Product: (GET) retrieve product instance
+(GET) retrieve product instance
 ---
 Url: __/products/{SKU}/details__
 
@@ -115,7 +116,7 @@ __watch_record:__ how many times an anonymous user retrieve that product
 
 <br/>
 
-#### Product: (PUT) updates product instance
+(PUT) updates product instance
 ---
 Url: __/products/{SKU}__
 
@@ -138,7 +139,11 @@ __brand:__ product's brand name (OPTIONAL)
 
 <br/>
 
-#### Product: (DELETE) deletes product instance
+__response (204)__
+
+<br/>
+
+(DELETE) deletes product instance
 ---
 Url: __/products/{SKU}__
 
@@ -148,11 +153,14 @@ __SKU:__ alphanumeric product's SKU
 
 <br/>
 
-#### Admins: (POST) creates "admin" instance
+# Admins: 
+---
+
+(POST) creates "admin" instance
 ---
 Url: __/admins/__
 
-payload:
+__payload:__
 
     {
         "username": string,
@@ -160,7 +168,7 @@ payload:
         "email": string
     }
 
-response (200): 
+__response (200):__
 
     {
         "id": integer,
@@ -169,7 +177,7 @@ response (200):
 
 <br/>
 
-#### Admins: (PUT) updates "admin" instance
+(PUT) updates "admin" instance
 ---
 Url: __/admins/{ID}/__
 
@@ -192,8 +200,7 @@ response (204)
 
 <br/>
 
-
-#### Admins: (DELETE) deletes "admin" instance
+(DELETE) deletes "admin" instance
 ---
 Url: __/admins/{ID}/__
 
