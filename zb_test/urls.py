@@ -21,12 +21,14 @@ from rest_framework import permissions
 from account.views import (
     LoginView
 )
+from account import views as account_views
 from product import views as product_views
 
 
 router = routers.DefaultRouter()
 router.register(r'products', product_views.ProductViewSet, basename='products')
 router.register(r'brands', product_views.BrandViewSet, basename='brand')
+router.register(r'admins', account_views.AdminViewSet, basename='admins')
 
 
 urlpatterns = [

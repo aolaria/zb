@@ -1,19 +1,26 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from rest_framework import viewsets, status, mixins
 from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from account.services import (
-    LoginServices
+    LoginServices,
+    AdminServices
+)
+from account.serializers import (
+    UserSerializer
 )
 from account.validators import (
-    LoginValidator
+    LoginValidator,
+    AdminValidator,
+    AdminValidatorUpdate,
 )
-from utils.CustomResponse import ErrorResponse
-
+from utils.custom_response import ErrorResponse
+from utils.error_messages import ErrorMessages as e
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +44,7 @@ class LoginView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             user = LoginServices.login(request.data)
         except (ValueError, ObjectDoesNotExist)  as error:
             logging.error(error)
-            return ErrorResponse(str(error), status=status.HTTP_400_BAD_REQUEST)
+            return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
         return Response(user, status=status.HTTP_200_OK)
 
     @action(methods=["put"], detail=False)
@@ -51,5 +58,44 @@ class LoginView(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             token = LoginServices.refresh(request.data)
         except Exception as error:
             logging.error(error)
-            return ErrorResponse(str(error), status=status.HTTP_400_BAD_REQUEST)
+            return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
         return Response({"access": str(token.access_token)}, status=status.HTTP_200_OK)
+
+
+class AdminViewSet(viewsets.ViewSet):
+    """
+    'admin' or users who can-authenticate
+    """
+    def create(self, request):
+        try:
+            AdminValidator(request.data)
+            user = AdminServices.create(request.data)
+        except IntegrityError as error:
+            logging.error(error)
+            return ErrorResponse("username already taken", status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(type(error))
+            logging.error(error)
+            return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
+        return Response(UserSerializer(user).data,status=status.HTTP_201_CREATED)
+
+    def update(self, request, pk=None):
+        try:
+            if not request.data:
+                return ErrorResponse(e.EMPTY_PAYLOAD, status=status.HTTP_400_BAD_REQUEST)
+            AdminValidatorUpdate(request.data)
+            AdminServices.update(data=request.data, pk=pk)
+        except Exception as error:
+            logging.error(error)
+            return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def destroy(self, _, pk=None):
+        try:
+            if not pk:
+                return ErrorResponse("admin id was not specified", status=status.HTTP_400_BAD_REQUEST)
+            AdminServices.destroy(pk=pk)
+        except Exception as error:
+            logging.error(error)
+            return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_204_NO_CONTENT)

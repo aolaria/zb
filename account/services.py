@@ -50,3 +50,37 @@ class LoginServices:
             raise ValueError("valid cannot be empty")
 
         return RefreshToken(refresh_token['access'])
+
+
+class AdminServices:
+    """
+    Creates/Updates/Destroy common non-staff-users
+    """
+    @staticmethod
+    def create(data:dict) -> User:
+        """
+        creates an Admin instance/as the scope of the tasks demands, admin user
+        must be able to CRUD products, the created under this method, will be able to 
+        authenticate and to handle those instances but for security, it wont be a 'staff' user.
+        """
+        return User.objects.create_user(**data)
+
+    @staticmethod
+    def update(data:dict, pk:int) -> User:
+        """
+        updates an User instance
+        """
+        try:
+            return User.objects.filter(id=pk).update(**data)
+        except ObjectDoesNotExist as error:
+            raise error
+
+    @staticmethod
+    def destroy(pk:int):
+        """
+        destroys an User instance
+        """
+        try:
+            User.objects.filter(id=pk).delete()
+        except ObjectDoesNotExist as error:
+            raise error

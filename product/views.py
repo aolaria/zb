@@ -18,7 +18,7 @@ from product.validators import (
     BrandValidator,
     ProductUpdateValidator,
 )
-from utils.CustomResponse import ErrorResponse
+from utils.custom_response import ErrorResponse
 
 
 logger = logging.getLogger(__name__)
