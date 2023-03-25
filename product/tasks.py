@@ -24,9 +24,7 @@ def update_product_email(user:User, sku:str, data:dict) -> bool:
     :return: True/False
     """
     recipients = [user.email for user in User.objects.filter(is_staff=True).only("email")]
-
     msg = message_build(sku=sku, username=user.username, data=data)
-    rendered = render_to_string("product_update.html", context={'user': user,'sku': sku,'data': data})
     send_mail("Recent Product Update",
               msg,
               from_email=settings.EMAIL_HOST_USER,
