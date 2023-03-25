@@ -69,13 +69,12 @@ class AdminViewSet(viewsets.ViewSet):
     """
     def create(self, request):
         try:
-            AdminValidator(request.data)
+            AdminValidator.validate(request.data)
             user = AdminServices.create(request.data)
         except IntegrityError as error:
             logging.error(error)
             return ErrorResponse("username already taken", status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
-            print(type(error))
             logging.error(error)
             return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
         return Response(UserSerializer(user).data,status=status.HTTP_201_CREATED)
@@ -84,7 +83,7 @@ class AdminViewSet(viewsets.ViewSet):
         try:
             if not request.data:
                 return ErrorResponse(e.EMPTY_PAYLOAD, status=status.HTTP_400_BAD_REQUEST)
-            AdminValidatorUpdate(request.data)
+            AdminValidatorUpdate.validate(request.data)
             AdminServices.update(data=request.data, pk=pk)
         except NotAuthorizatedError:
             return ErrorResponse(e.NOT_AUTHORIZED,status=status.HTTP_401_UNAUTHORIZED)

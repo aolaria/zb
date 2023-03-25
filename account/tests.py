@@ -7,6 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from account.validators import LoginValidator
 from account.models import User
+from utils.tests import mock_user
+from utils.error_messages import ErrorMessages as e
 
 
 
@@ -104,7 +106,7 @@ class LoginTestCase(APITestCase):
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"]["msg"], "Wrong password")
+        self.assertEqual(response.data["error"]["msg"], e.SOMETHING_WENT_WRONG)
     
     def test_not_existing_user_login_return_none(self):
         """
@@ -123,7 +125,7 @@ class LoginTestCase(APITestCase):
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"]["msg"], "User does not exists")
+        self.assertEqual(response.data["error"]["msg"], e.SOMETHING_WENT_WRONG)
 
 
 class RefreshTokenTestCase(APITestCase):
@@ -135,8 +137,8 @@ class RefreshTokenTestCase(APITestCase):
         self.username = "chester"
         self.password = "tester"
         self.data = {
-            'username': self.username,
-            'password': self.password
+            "username": self.username,
+            "password": self.password
         }
 
     def test_succesful_token_refresh_return_none(self):
@@ -168,5 +170,57 @@ class RefreshTokenTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class AdminUserTestCase:
+class AdminUserTestCase(APITestCase):
+    """
+    "Admin" Users
+    """
+    def setUp(self) -> None:
+        self.url = '/admins/'
+        self.username = "DarthVader1984"
+        self.password = "cometothedarkside123"
+        self.email = "testing@tester.com"
+        self.data = {
+            "username": self.username,
+            "password": self.password,
+            "email": self.email
+        }
+        self.context_user, _ = mock_user()
+        self.client.force_authenticate(user=self.context_user)
+
+    def test_successful_admin_creation_return_none(self):
+        response = self.client.post(
+            self.url,
+            self.data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_not_passing_username_key_return_none(self):
+        obj = self.data
+        obj.pop("username")
+        response = self.client.post(
+            self.url,
+            obj,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
+    def test_not_passing_password_key_return_none(self):
+        obj = self.data
+        obj.pop("password")
+        response = self.client.post(
+            self.url,
+            obj,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_not_passing_email_key_return_none(self):
+        obj = self.data
+        obj.pop("email")
+        response = self.client.post(
+            self.url,
+            obj,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
