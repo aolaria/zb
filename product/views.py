@@ -57,7 +57,7 @@ class ProductViewSet(viewsets.ViewSet):
         if not pk:
             return ErrorResponse("product SKU was not specified", status=status.HTTP_400_BAD_REQUEST)
         try:
-            prod = ProductServices.retrieve(request, sku=pk)
+            prod = ProductServices.retrieve(user=request.user, sku=pk)
         except ObjectDoesNotExist as error:
             logger.error(error)
             return ErrorResponse(str(error), status=status.HTTP_404_NOT_FOUND)
@@ -86,12 +86,12 @@ class ProductViewSet(viewsets.ViewSet):
         """
         try:
             ProductUpdateValidator.validate(request.data)
-            prod = ProductServices.update(sku=pk, data=request.data)
+            prod = ProductServices.update(sku=pk, data=request.data, user=request.user)
         except ObjectDoesNotExist:
             return ErrorResponse("not existing product", status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             logger.error(error)
-            return ErrorResponse("soemthing went wrong", status=status.HTTP_404_NOT_FOUND)
+            return ErrorResponse("something went wrong", status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def destroy(self, _, pk=None) -> Response:

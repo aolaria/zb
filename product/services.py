@@ -3,10 +3,12 @@ import secrets
 
 from django.core.exceptions import ObjectDoesNotExist
 
+from account.models import User
 from product.models import Brand, Product, WatchRecord
 from product.validators import (
     ProductValidator
 )
+from .tasks import update_product_email
 
 
 class BrandServices:
@@ -71,7 +73,7 @@ class ProductServices:
             record.save()
 
     @staticmethod
-    def retrieve(request, sku:str) -> Product:
+    def retrieve(sku:str, user:User=None) -> Product:
         """
         Retrieve a product instance
         :param sku: (str) product's SKU
@@ -79,7 +81,7 @@ class ProductServices:
         """
         try:
             prod = Product.objects.get(sku=sku)
-            if getattr(request.user, 'is_anonymous', False):
+            if user and getattr(user, 'is_anonymous', False):
                 ProductServices.__create_product_record(prod)
         except ObjectDoesNotExist as error:
             raise error
@@ -110,7 +112,7 @@ class ProductServices:
         return ProductServices.__upsert(data=data)
 
     @staticmethod
-    def update(sku:str, data:dict) -> None:
+    def update(sku:str, data:dict, user:User) -> None:
         """
         updates product instance
         :param sku: (str) SKU code
@@ -131,6 +133,8 @@ class ProductServices:
         for key, value in data.items():
             setattr(product, key, value)
         product.save()
+        # send update email
+        update_product_email(user=user, sku=sku, data=data)
     
     @staticmethod
     def destroy(sku:str) -> None:

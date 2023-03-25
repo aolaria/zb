@@ -9,6 +9,9 @@ services:
       - POSTGRES_USER=${PSQL_USER}
       - POSTGRES_PASSWORD=${PSQL_PASS}
       - POSTGRES_DB=${PSQL_DB}
+      - REDIS_HOST=zb_cache
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
 
   zb_web:
     build: .
@@ -20,5 +23,20 @@ services:
     depends_on:
       - zb_db
 
+  zb_redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+
+  zb_worker:
+    build: .
+    command: celery -A zb_test worker --loglevel=info
+    volumes:
+      - .:/code
+    depends_on:
+      - zb_web
+      - zb_redis
+
 volumes:
   postgres_data:
+  redis_data:
