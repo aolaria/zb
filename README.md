@@ -69,11 +69,11 @@ payload:
 
 __parameters:__
 
-__name:__ product's name
+* __name:__ product's name
 
-__price:__ product's price
+* __price:__ product's price
 
-__brand:__ product's brand name
+* __brand:__ product's brand name
 
 <br/>
 
@@ -129,13 +129,13 @@ payload:
     }
 __parameters:__
 
-__SKU:__ alphanumeric product's SKU
+* __SKU:__ alphanumeric product's SKU
 
-__name:__ product's name (OPTIONAL)
+* __name:__ product's name (OPTIONAL)
 
-__price:__ product's price (OPTIONAL)
+* __price:__ product's price (OPTIONAL)
 
-__brand:__ product's brand name (OPTIONAL)
+* __brand:__ product's brand name (OPTIONAL)
 
 <br/>
 
@@ -149,7 +149,7 @@ Url: __/products/{SKU}__
 
 __parameters:__
 
-__SKU:__ alphanumeric product's SKU
+* __SKU:__ alphanumeric product's SKU
 
 <br/>
 
@@ -191,7 +191,7 @@ payload:
 
 __parameters:__
 
-__ID:__ Admin's ID
+* __ID:__ Admin's ID
 
 <br>
 
@@ -206,7 +206,7 @@ Url: __/admins/{ID}/__
 
 __parameters:__
 
-__ID:__ Admin's ID
+* __ID:__ Admin's ID
 
 <br/>
 
