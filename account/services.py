@@ -6,6 +6,7 @@ from account.models import User
 from account.serializers import (
     UserSerializer
 )
+from utils.custom_exceptions import NotAuthorizatedError
 
 
 class LoginServices:
@@ -71,7 +72,13 @@ class AdminServices:
         updates an User instance
         """
         try:
-            return User.objects.filter(id=pk).update(**data)
+            user = User.objects.get(id=pk)
+            if user.is_staff or user.is_superuser:
+                raise NotAuthorizatedError
+            for key, value in data.items():
+                if hasattr(user, key) and key in ['username', 'email', 'password']:
+                    setattr(user, key, value)
+            user.save()
         except ObjectDoesNotExist as error:
             raise error
 
@@ -81,6 +88,9 @@ class AdminServices:
         destroys an User instance
         """
         try:
-            User.objects.filter(id=pk).delete()
+            user = User.objects.get(id=pk)
+            if user.is_staff or user.is_superuser:
+                raise NotAuthorizatedError
+            user.delete()
         except ObjectDoesNotExist as error:
             raise error

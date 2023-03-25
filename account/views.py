@@ -20,6 +20,7 @@ from account.validators import (
     AdminValidatorUpdate,
 )
 from utils.custom_response import ErrorResponse
+from utils.custom_exceptions import NotAuthorizatedError
 from utils.error_messages import ErrorMessages as e
 
 
@@ -85,6 +86,8 @@ class AdminViewSet(viewsets.ViewSet):
                 return ErrorResponse(e.EMPTY_PAYLOAD, status=status.HTTP_400_BAD_REQUEST)
             AdminValidatorUpdate(request.data)
             AdminServices.update(data=request.data, pk=pk)
+        except NotAuthorizatedError:
+            return ErrorResponse(e.NOT_AUTHORIZED,status=status.HTTP_401_UNAUTHORIZED)
         except Exception as error:
             logging.error(error)
             return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)
@@ -95,6 +98,8 @@ class AdminViewSet(viewsets.ViewSet):
             if not pk:
                 return ErrorResponse("admin id was not specified", status=status.HTTP_400_BAD_REQUEST)
             AdminServices.destroy(pk=pk)
+        except NotAuthorizatedError:
+            return ErrorResponse(e.NOT_AUTHORIZED,status=status.HTTP_401_UNAUTHORIZED)
         except Exception as error:
             logging.error(error)
             return ErrorResponse(e.SOMETHING_WENT_WRONG, status=status.HTTP_400_BAD_REQUEST)

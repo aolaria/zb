@@ -166,3 +166,7 @@ class RefreshTokenTestCase(APITestCase):
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class AdminUserTestCase:
+    
